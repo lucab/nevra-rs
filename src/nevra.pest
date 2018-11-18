@@ -1,0 +1,36 @@
+// Parsing rules for RPM "Name, Epoch, Version, Release, Architecture" (NEVRA).
+
+// Complete NEVRA label.
+nevra_input = $ { SOI
+              ~ name
+              ~ NE_SEPARATOR
+              ~ evra
+              ~ EOI
+              }
+
+// Complete EVRA label.
+evra_input  = $ { SOI
+              ~ evra
+              ~ EOI
+              }
+
+// EVRA sub-label.
+evra = $ { (epoch ~ EV_SEPARATOR)?
+         ~ version
+         ~ (VR_SEPARATOR ~ release)?
+         ~ (RA_SEPARATOR ~ architecture)?
+         }
+
+// NEVRA Fields
+name         = $ { (!NE_SEPARATOR ~ ANY)+ }
+epoch        = $ { (!EV_SEPARATOR ~ ANY)+ }
+version      = $ { (!VR_SEPARATOR ~ ANY)+ }
+release      = $ { (!RA_SEPARATOR ~ ANY)+ }
+architecture = $ { (ANY)+ }
+
+// NEVRA Separators
+NE_SEPARATOR = _ { "-" }
+EV_SEPARATOR = _ { ":" }
+VR_SEPARATOR = _ { "-" }
+RA_SEPARATOR = _ { "." }
+

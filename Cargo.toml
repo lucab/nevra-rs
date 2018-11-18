@@ -1,0 +1,8 @@
+[package]
+name = "nevra"
+version = "0.1.0"
+authors = ["Luca Bruno <luca.bruno@coreos.com>"]
+
+[dependencies]
+pest = "^2.0.2"
+pest_derive = "^2.0.1"
