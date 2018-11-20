@@ -1,4 +1,8 @@
 extern crate nevra;
+#[macro_use]
+extern crate proptest;
+
+use proptest::prelude::*;
 
 #[test]
 fn parse_nevra() {
@@ -42,5 +46,19 @@ fn parse_nevra() {
         assert_eq!(parsed.release(), &ver.3, "{} -> {:?}", t, parsed);
         assert_eq!(parsed.architecture(), &ver.4, "{} -> {:?}", t, parsed);
         assert_eq!(parsed.to_string(), *t, "{} -> {:?}", t, parsed);
+    }
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig{
+        cases: 1000,
+        max_global_rejects: 75000,
+        ..Default::default()
+    })]
+    #[test]
+    fn testprop_roundtrip_string(ref input in any::<String>()){
+        let decoded = nevra::PackageVersion::parse(input);
+        prop_assume!(decoded.is_ok());
+        prop_assert_eq!(input, &decoded.unwrap().to_string());
     }
 }

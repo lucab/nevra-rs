@@ -7,3 +7,6 @@ authors = ["Luca Bruno <luca.bruno@coreos.com>"]
 error-chain = {version = "0.12", default-features = false}
 pest = "^2.0.2"
 pest_derive = "^2.0.1"
+
+[dev-dependencies]
+proptest = "^0.7.0"
