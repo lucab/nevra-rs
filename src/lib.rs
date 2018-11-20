@@ -27,6 +27,8 @@ extern crate pest;
 #[macro_use]
 extern crate pest_derive;
 
+use std::fmt;
+
 pub mod errors;
 mod parse;
 use parse::{NevraParser, Rule};
@@ -142,6 +144,13 @@ impl PackageVersion {
         Ok(nevra)
     }
 }
+
+impl fmt::Display for PackageVersion {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}-{}", self.name, self.evra())
+    }
+}
+
 /// An `EVRA` package version.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Version {
@@ -265,5 +274,25 @@ impl Version {
             }
         }
         Ok(evra)
+    }
+}
+
+impl fmt::Display for Version {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut buf = String::new();
+        if let Some(ref e) = self.epoch {
+            buf.push_str(e);
+            buf.push(':');
+        }
+        buf.push_str(&self.version);
+        if let Some(ref r) = self.release {
+            buf.push('-');
+            buf.push_str(r);
+        }
+        if let Some(ref a) = self.architecture {
+            buf.push('.');
+            buf.push_str(a);
+        }
+        write!(f, "{}", buf)
     }
 }
