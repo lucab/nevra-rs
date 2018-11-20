@@ -7,11 +7,11 @@ use proptest::prelude::*;
 #[test]
 fn parse_nevra() {
     let testcases = vec![
-        "n-e:v-r.a",
-        "nnn-eee:vvv-rrr.aaa",
+        "n-0:v-r.a",
+        "nnn-000:vvv-rrr.aaa",
         "f-v",
         "foo-v",
-        "f-e:v",
+        "f-0:v",
         "f-0-1",
         "f-0:1",
     ];
@@ -19,21 +19,21 @@ fn parse_nevra() {
         // (N, E, V, R, A)
         (
             "n",
-            Some("e".into()),
+            Some("0".into()),
             "v",
             Some("r".into()),
             Some("a".into()),
         ),
         (
             "nnn",
-            Some("eee".into()),
+            Some("000".into()),
             "vvv",
             Some("rrr".into()),
             Some("aaa".into()),
         ),
         ("f", None, "v", None, None),
         ("foo", None, "v", None, None),
-        ("f", Some("e".into()), "v", None, None),
+        ("f", Some("0".into()), "v", None, None),
         ("f", None, "0", Some("1".into()), None),
         ("f", Some("0".into()), "1", None, None),
     ];
@@ -51,8 +51,8 @@ fn parse_nevra() {
 
 proptest! {
     #![proptest_config(ProptestConfig{
-        cases: 1000,
-        max_global_rejects: 75000,
+        cases: 4,
+        max_global_rejects: 1000000,
         ..Default::default()
     })]
     #[test]
