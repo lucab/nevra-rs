@@ -21,10 +21,13 @@
 //! assert_eq!(nevra.evra(), &evra);
 //! ```
 
+#[macro_use]
+extern crate error_chain;
 extern crate pest;
 #[macro_use]
 extern crate pest_derive;
 
+pub mod errors;
 mod parse;
 use parse::{NevraParser, Rule};
 
@@ -43,13 +46,9 @@ impl PackageVersion {
         version: S,
         release: Option<String>,
         architecture: Option<String>,
-    ) -> Result<Self, ()> {
-        if name.as_ref().is_empty() {
-            return Err(());
-        }
-        if version.as_ref().is_empty() {
-            return Err(());
-        }
+    ) -> errors::Result<Self> {
+        ensure!(!name.as_ref().is_empty(), "empty name");
+        ensure!(!version.as_ref().is_empty(), "empty version");
 
         let mut label = name.as_ref().to_string();
         if let Some(e) = epoch {
@@ -105,14 +104,13 @@ impl PackageVersion {
     }
 
     /// Parse a NEVRA label.
-    pub fn parse<S: AsRef<str>>(label: S) -> Result<Self, ()> {
+    pub fn parse<S: AsRef<str>>(label: S) -> errors::Result<Self> {
+        use errors::ResultExt;
         use pest::Parser;
 
         // Parse label.
-        let mut rules = match NevraParser::parse(Rule::nevra_input, label.as_ref()) {
-            Ok(r) => r,
-            Err(_) => return Err(()),
-        };
+        let mut rules = NevraParser::parse(Rule::nevra_input, label.as_ref())
+            .chain_err(|| "NEVRA parsing error")?;
 
         // Temporary fields.
         let mut name = String::new();
@@ -134,8 +132,7 @@ impl PackageVersion {
                 }
                 Rule::EOI => {}
                 _ => {
-                    //panic!(field.to_string());
-                    return Err(());
+                    bail!("NEVRA, invalid token rule: {}", field.to_string());
                 }
             }
         }
@@ -165,10 +162,8 @@ impl Version {
         version: S,
         release: Option<String>,
         architecture: Option<String>,
-    ) -> Result<Self, ()> {
-        if version.as_ref().is_empty() {
-            return Err(());
-        }
+    ) -> errors::Result<Self> {
+        ensure!(!version.as_ref().is_empty(), "empty version");
 
         let mut label = String::new();
         if let Some(e) = epoch {
@@ -209,13 +204,12 @@ impl Version {
     }
 
     /// Parse an EVRA label.
-    pub fn parse<S: AsRef<str>>(label: S) -> Result<Self, ()> {
+    pub fn parse<S: AsRef<str>>(label: S) -> errors::Result<Self> {
+        use errors::ResultExt;
         use pest::Parser;
 
-        let mut rules = match NevraParser::parse(Rule::evra_input, label.as_ref()) {
-            Ok(r) => r,
-            Err(_) => return Err(()),
-        };
+        let mut rules = NevraParser::parse(Rule::evra_input, label.as_ref())
+            .chain_err(|| "EVRA parsing error")?;
 
         // Temporary fields.
         let mut evra = Version {
@@ -233,8 +227,7 @@ impl Version {
                 }
                 parse::Rule::EOI => {}
                 _ => {
-                    //panic!(field.to_string());
-                    return Err(());
+                    bail!("EVRA, invalid token rule: {}", field.to_string());
                 }
             }
         }
@@ -242,7 +235,7 @@ impl Version {
     }
 
     /// Parse tokenized evra label.
-    fn parse_evra_rule(rule: pest::iterators::Pair<'_, parse::Rule>) -> Result<Self, ()> {
+    fn parse_evra_rule(rule: pest::iterators::Pair<'_, parse::Rule>) -> errors::Result<Self> {
         // Temporary fields.
         let mut evra = Self {
             epoch: None,
@@ -267,8 +260,7 @@ impl Version {
                     evra.architecture = Some(field.as_str().to_string());
                 }
                 _ => {
-                    //panic!(field.to_string());
-                    return Err(());
+                    bail!("EVRA label, invalid token rule: {}", field.to_string());
                 }
             }
         }

@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Luca Bruno <luca.bruno@coreos.com>"]
 
 [dependencies]
+error-chain = {version = "0.12", default-features = false}
 pest = "^2.0.2"
 pest_derive = "^2.0.1"
