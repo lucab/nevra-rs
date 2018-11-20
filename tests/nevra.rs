@@ -41,5 +41,6 @@ fn parse_nevra() {
         assert_eq!(parsed.version(), ver.2, "{} -> {:?}", t, parsed);
         assert_eq!(parsed.release(), &ver.3, "{} -> {:?}", t, parsed);
         assert_eq!(parsed.architecture(), &ver.4, "{} -> {:?}", t, parsed);
+        assert_eq!(parsed.to_string(), *t, "{} -> {:?}", t, parsed);
     }
 }
